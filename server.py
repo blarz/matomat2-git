@@ -19,6 +19,8 @@ class MatoHTTPRequestHandler(server.BaseHTTPRequestHandler):
 	def do_POST(self):
 		if self.path.endswith('/pay'):
 			self.pay()
+		if self.path.endswith('/buy'):
+			self.buy()
 		else:
 			self.not_found()
 
@@ -76,15 +78,12 @@ class MatoHTTPRequestHandler(server.BaseHTTPRequestHandler):
 		money_out=s.query(db.Sale).filter(db.Pay.user==user).all()
 		money=sorted(money_in+money_out,key=lambda x:x.time)
 		data=[]
-		print(money)
 		for m in money:
 			d={"amount":m.amount,"time":m.time.isoformat()}
-			print(d)
 			if isinstance(m,db.Sale):
-				item_name=s.query(db.Item).filter(db.Item.id==m.item).one().name
-				d["Item"]=item_name
+				d["amount"]*=-1
+				d["Item"]=m.item.name
 			data.append(d)
-		print(data)
 		self.send_response(200)
 		self.send_header("Content-type", "application/json")
 		self.end_headers()
@@ -107,6 +106,27 @@ class MatoHTTPRequestHandler(server.BaseHTTPRequestHandler):
 		user=s.query(db.User).filter(db.User.name==username).one()
 		p=db.Pay(user=user,amount=amount)
 		s.add(p)
+		s.commit()
+		return self.see_other()
+
+	def buy(self):
+		if not self.auth(): return self.forbidden()
+		try:
+			d=(self.rfile.read().decode('ASCII'))
+			data=json.loads(d)
+		except ValueError as ex:
+			print(ex)
+			return self.bad_request()
+		try:
+			item_id=int(data)
+		except KeyError:
+			return self.bad_request()
+		username=self.path.split('/')[1]
+		s=db.Session()
+		user=s.query(db.User).filter(db.User.name==username).one()
+		item=s.query(db.Item).filter(db.Item.id==item_id).one()
+		sale=db.Sale(user=user,item=item,amount=item.price)
+		s.add(sale)
 		s.commit()
 		return self.see_other()
 
