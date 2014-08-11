@@ -9,6 +9,8 @@ class MatoHTTPRequestHandler(server.BaseHTTPRequestHandler):
 			self.index()
 		elif self.path.endswith('/balance'):
 			self.balance()
+		elif self.path.endswith('/items'):
+			self.items()
 		else:
 			self.not_found()
 
@@ -52,19 +54,27 @@ class MatoHTTPRequestHandler(server.BaseHTTPRequestHandler):
 
 	def balance(self):
 		if not self.auth(): return self.forbidden()
-		index()
+		username=self.path.split('/')[1]
+		s=db.Session()
+		user=s.query(db.User).filter(db.User.name==username).one()
+		money_in=sum((x.amount for x in s.query(db.Pay).filter(db.Pay.user==user)))
+		money_out=sum((x.amount for x in s.query(db.Sale).filter(db.Pay.user==user)))
+		data=money_in-money_out
+		self.send_response(200)
+		self.send_header("Content-type", "application/json")
+		self.end_headers()
+		self.wfile.write(bytes(json.dumps(data),'UTF-8'))
 
 	def pay(self):
 		if not self.auth(): return self.forbidden()
 		try:
 			d=(self.rfile.read().decode('ASCII'))
-			print(repr(d))
 			data=json.loads(d)
 		except ValueError as ex:
 			print(ex)
 			return self.bad_request()
 		try:
-			amount=data['amount']
+			amount=int(data)
 		except KeyError:
 			return self.bad_request()
 		username=self.path.split('/')[1]
@@ -74,6 +84,16 @@ class MatoHTTPRequestHandler(server.BaseHTTPRequestHandler):
 		s.add(p)
 		s.commit()
 		return self.see_other()
+
+	def items(self):
+		s=db.Session()
+		items_q=s.query(db.Item)
+		items=[{"id":x.id,"name":x.name,"price":x.price} for x in items_q]
+		self.send_response(200)
+		self.send_header("Content-type", "application/json")
+		self.end_headers()
+		self.wfile.write(bytes(json.dumps(items),'UTF-8'))
+
 
 if __name__=='__main__':
 	s=server.HTTPServer(('',8000),MatoHTTPRequestHandler)
