@@ -25,15 +25,23 @@ class MatoHTTPRequestHandler(server.BaseHTTPRequestHandler):
 			self.servefile()
 
 	def do_POST(self):
+		if self.path.startswith('/api'):
+			self.path=self.path[4:]
+		else:
+			return self.not_found()
 		if self.path.endswith('/pay'):
 			self.pay()
-		if self.path.endswith('/buy'):
+		elif self.path.endswith('/buy'):
 			self.buy()
 		else:
 			self.not_found()
 
 	def see_other(self):
 		self.send_response(303)
+		self.end_headers()
+
+	def created(self):
+		self.send_response(201)
 		self.end_headers()
 
 	def forbidden(self):
@@ -103,8 +111,11 @@ class MatoHTTPRequestHandler(server.BaseHTTPRequestHandler):
 
 	def pay(self):
 		if not self.auth(): return self.forbidden()
+		length=self.headers.get('Content-Length',None)
+		if length is None:
+			return self.bad_request()
 		try:
-			d=(self.rfile.read().decode('ASCII'))
+			d=(self.rfile.read(int(length)).decode('ASCII'))
 			data=json.loads(d)
 		except ValueError as ex:
 			return self.bad_request()
@@ -118,12 +129,15 @@ class MatoHTTPRequestHandler(server.BaseHTTPRequestHandler):
 		p=db.Pay(user=user,amount=amount)
 		s.add(p)
 		s.commit()
-		return self.see_other()
+		return self.created()
 
 	def buy(self):
 		if not self.auth(): return self.forbidden()
+		length=self.headers.get('Content-Length',None)
+		if length is None:
+			return self.bad_request()
 		try:
-			d=(self.rfile.read().decode('ASCII'))
+			d=(self.rfile.read(int(length)).decode('ASCII'))
 			data=json.loads(d)
 		except ValueError as ex:
 			return self.bad_request()
@@ -138,7 +152,7 @@ class MatoHTTPRequestHandler(server.BaseHTTPRequestHandler):
 		sale=db.Sale(user=user,item=item,amount=item.price)
 		s.add(sale)
 		s.commit()
-		return self.see_other()
+		return self.created()
 
 	def items(self):
 		s=db.Session()
