@@ -21,10 +21,24 @@ matomatControllers.controller('balanceCtrl', ['$scope', '$http', '$rootScope', '
 					$scope.message="Einzahlen fehlgeschlagen";
 				});
 			};
-			$http.get("/api/items")
+			$scope.buy=function(item){
+				var url="/api/"+$rootScope.user+"/buy";
+				$http.post(url,item,{headers:{pass:$rootScope.pass}})
 				.success(function(data){
-					$scope.items=data;
+					$scope.loadBalance();
+					for (i in $scope.items){
+						it=$scope.items[i];
+						if (it.id==item){
+							$scope.message="Ein "+it.name+" f&uuml;r (WTF AngularJS) "+it.price+"EUR gekauft";
+							break;
+						}
+					}
+				})
+				.error(function(data){
+					$scope.message="Kauf fehlgeschlagen";
 				});
+			};
+
 			$scope.loadBalance=function(){
 				var url="/api/"+$rootScope.user+"/balance";
 				$http.get(url,{headers:{pass:$rootScope.pass}})
@@ -36,5 +50,10 @@ matomatControllers.controller('balanceCtrl', ['$scope', '$http', '$rootScope', '
 					}
 					);
 			}
+
+			$http.get("/api/items")
+				.success(function(data){
+					$scope.items=data;
+				});
 			$scope.loadBalance();
 		}]);

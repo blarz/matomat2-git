@@ -4,12 +4,15 @@
 <div>
 <input ng-model="amount" />
 <a href="" ng-click="pay(amount)">einzahlen</a>
+<a href="" ng-click="pay(10)">10</a>
+<a href="" ng-click="pay(20)">20</a>
+<a href="" ng-click="pay(50)">50</a>
 </div>
 {{message}}
 <div>
   <table>
     <tr ng-repeat="item in items">
-		<td>{{item.name}}</td><td> {{item.price/100|currency:'&euro;'}}</td>
+		<td><a href="" ng-click="buy(item.id)">{{item.name}}</a></td><td> {{item.price/100}}&euro;</td>
     </tr>
   </table>
 </div>
