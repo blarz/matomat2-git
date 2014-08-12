@@ -1,20 +1,28 @@
 from http import server
+import shutil
+import os
 import json
 import database as db
 from authentication import check_user
 
 class MatoHTTPRequestHandler(server.BaseHTTPRequestHandler):
 	def do_GET(self):
-		if self.path=='/':
-			self.index()
-		elif self.path.endswith('/balance'):
-			self.balance()
-		elif self.path.endswith('/items'):
-			self.items()
-		elif self.path.endswith('/details'):
-			self.details()
+		if self.path.startswith('/api'):
+			self.path=self.path[4:]
+			if self.path.endswith('/balance'):
+				self.balance()
+			elif self.path.endswith('/items'):
+				self.items()
+			elif self.path.endswith('/details'):
+				self.details()
+			else:
+				self.not_found()
 		else:
-			self.not_found()
+			if self.path=='/':
+				self.path='/index.html'
+			if self.path.find('..')!=-1:
+				return self.forbidden()
+			self.servefile()
 
 	def do_POST(self):
 		if self.path.endswith('/pay'):
@@ -46,11 +54,19 @@ class MatoHTTPRequestHandler(server.BaseHTTPRequestHandler):
 		return check_user(username,password)
 
 
-	def index(self):
-		self.send_response(200)
-		self.send_header("Content-type", "text/html")
-		self.end_headers()
-		self.wfile.write(bytes("test\n",'UTF-8'))
+	def servefile(self):
+		filename=os.path.join(os.getcwd(),'client','html',self.path[1:])
+		print(filename)
+		try:
+			with open(filename,'rb') as f:
+				size=f.seek(0,2)
+				f.seek(0,0)
+				self.send_response(200)
+				self.send_header("Content-Length", size)
+				self.end_headers()
+				shutil.copyfileobj(f,self.wfile)#.write(bytes(f.read(),'ASCII'))
+		except FileNotFoundError:
+			return self.not_found();
 
 	def balance(self):
 		if not self.auth(): return self.forbidden()
