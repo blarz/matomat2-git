@@ -8,6 +8,22 @@ matomatControllers.controller('loginCtrl', ['$scope', '$rootScope',
 		}
 }]);
 
+matomatControllers.controller('detailCtrl', ['$scope', '$http', '$rootScope', '$location',
+		function($scope,$http, $rootScope, $location) {
+			$scope.loadDetails=function(){
+				var url="/api/"+$rootScope.user+"/details";
+				$http.get(url,{headers:{pass:$rootScope.pass}})
+					.success(function(data){
+						$scope.details=data;
+					})
+					.error(function(data){
+						$location.path('/login');
+					}
+					);
+			}
+
+			$scope.loadDetails();
+}]);
 matomatControllers.controller('balanceCtrl', ['$scope', '$http', '$rootScope', '$location',
 		function($scope,$http, $rootScope, $location) {
 			$scope.pay=function(amount){
@@ -21,6 +37,19 @@ matomatControllers.controller('balanceCtrl', ['$scope', '$http', '$rootScope', '
 					$scope.message="Einzahlen fehlgeschlagen";
 				});
 			};
+
+			$scope.undo=function(){
+				var url="/api/"+$rootScope.user+"/undo";
+				$http.post(url,"",{headers:{pass:$rootScope.pass}})
+				.success(function(data){
+					$scope.message="letzte Aktion r&uuml;ckg&auml;ngig gemacht";
+					$scope.loadBalance();
+				})
+				.error(function(data){
+					$scope.message="letzte Aktion konnte nicht r&uuml;ckg&auml;ngig gemacht werden";
+				});
+			};
+
 			$scope.buy=function(item){
 				var url="/api/"+$rootScope.user+"/buy";
 				$http.post(url,item,{headers:{pass:$rootScope.pass}})
@@ -29,7 +58,7 @@ matomatControllers.controller('balanceCtrl', ['$scope', '$http', '$rootScope', '
 					for (i in $scope.items){
 						it=$scope.items[i];
 						if (it.id==item){
-							$scope.message="Ein "+it.name+" f&uuml;r (WTF AngularJS) "+it.price+"EUR gekauft";
+							$scope.message="Ein "+it.name+" f&uuml;r (WTF AngularJS) "+it.price/100+"EUR gekauft";
 							break;
 						}
 					}

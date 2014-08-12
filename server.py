@@ -33,11 +33,17 @@ class MatoHTTPRequestHandler(server.BaseHTTPRequestHandler):
 			self.pay()
 		elif self.path.endswith('/buy'):
 			self.buy()
+		elif self.path.endswith('/undo'):
+			self.undo()
 		else:
 			self.not_found()
 
 	def see_other(self):
 		self.send_response(303)
+		self.end_headers()
+
+	def conflict(self):
+		self.send_response(409)
 		self.end_headers()
 
 	def created(self):
@@ -95,7 +101,7 @@ class MatoHTTPRequestHandler(server.BaseHTTPRequestHandler):
 		s=db.Session()
 		user=s.query(db.User).filter(db.User.name==username).one()
 		money_in=s.query(db.Pay).filter(db.Pay.user==user).all()
-		money_out=s.query(db.Sale).filter(db.Pay.user==user).all()
+		money_out=s.query(db.Sale).filter(db.Sale.user==user).all()
 		money=sorted(money_in+money_out,key=lambda x:x.time)
 		data=[]
 		for m in money:
@@ -108,6 +114,27 @@ class MatoHTTPRequestHandler(server.BaseHTTPRequestHandler):
 		self.send_header("Content-type", "application/json")
 		self.end_headers()
 		self.wfile.write(bytes(json.dumps(data),'UTF-8'))
+
+	def undo(self):
+		if not self.auth(): return self.forbidden()
+		username=self.path.split('/')[1]
+		s=db.Session()
+		user=s.query(db.User).filter(db.User.name==username).one()
+		last_in=s.query(db.Pay).filter(db.Pay.user==user).order_by(db.Pay.time.desc()).first()
+		last_out=s.query(db.Sale).filter(db.Sale.user==user).order_by(db.Sale.time.desc()).first()
+		if last_in is None:
+			if last_out is None:
+				return self.conflict()
+			else:
+				s.delete(last_out)
+		else:
+			if last_out is None:
+				s.delete(last_in)
+			else:
+				s.delete(last_in if last_in.time>last_out.time else last_out)
+		s.commit()
+		return self.created();
+
 
 	def pay(self):
 		if not self.auth(): return self.forbidden()
