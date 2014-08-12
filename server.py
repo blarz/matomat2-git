@@ -25,22 +25,18 @@ class MatoHTTPRequestHandler(server.BaseHTTPRequestHandler):
 			self.not_found()
 
 	def see_other(self):
-		print('see_other')
 		self.send_response(303)
 		self.end_headers()
 
 	def forbidden(self):
-		print('forbidden')
 		self.send_response(403)
 		self.end_headers()
 
 	def not_found(self):
-		print('notfound')
 		self.send_response(404)
 		self.end_headers()
 
 	def bad_request(self):
-		print('bad request')
 		self.send_response(400)
 		self.end_headers()
 
@@ -95,7 +91,6 @@ class MatoHTTPRequestHandler(server.BaseHTTPRequestHandler):
 			d=(self.rfile.read().decode('ASCII'))
 			data=json.loads(d)
 		except ValueError as ex:
-			print(ex)
 			return self.bad_request()
 		try:
 			amount=int(data)
@@ -115,7 +110,6 @@ class MatoHTTPRequestHandler(server.BaseHTTPRequestHandler):
 			d=(self.rfile.read().decode('ASCII'))
 			data=json.loads(d)
 		except ValueError as ex:
-			print(ex)
 			return self.bad_request()
 		try:
 			item_id=int(data)
