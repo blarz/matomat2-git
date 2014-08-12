@@ -1,0 +1,15 @@
+<div>
+	balance: {{balance/100}}&euro;
+</div>
+<div>
+<input ng-model="amount" />
+<a href="" ng-click="pay(amount)">einzahlen</a>
+</div>
+{{message}}
+<div>
+  <table>
+    <tr ng-repeat="item in items">
+		<td>{{item.name}}</td><td> {{item.price/100|currency:'&euro;'}}</td>
+    </tr>
+  </table>
+</div>
