@@ -96,7 +96,7 @@ class MatoHTTPRequestHandler(server.BaseHTTPRequestHandler):
 		s=db.Session()
 		user=s.query(db.User).filter(db.User.name==username).one()
 		money_in=sum((x.amount for x in s.query(db.Pay).filter(db.Pay.user==user)))
-		money_out=sum((x.amount for x in s.query(db.Sale).filter(db.Pay.user==user)))
+		money_out=sum((x.amount for x in s.query(db.Sale).filter(db.Sale.user==user)))
 		data=money_in-money_out
 		self.send_response(200)
 		self.send_header("Content-type", "application/json")
