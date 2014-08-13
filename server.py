@@ -159,7 +159,7 @@ class MatoHTTPRequestHandler(server.BaseHTTPRequestHandler):
 		except KeyError:
 			return self.bad_request()
 		s=db.Session()
-		u=s.query(User).filter(db.User.name==self.username).one()
+		u=s.query(db.User).filter(db.User.name==self.username).one()
 		if create_user(username,password,u.id):
 			return self.created()
 		else:

@@ -11,6 +11,10 @@ matomatApp.config(['$routeProvider','$sceProvider',
         templateUrl: 'partials/login.html',
         controller: 'loginCtrl'
       }).
+      when('/user', {
+        templateUrl: 'partials/user.html',
+        controller: 'userCtrl'
+      }).
       when('/balance', {
         templateUrl: 'partials/balance.html',
         controller: 'balanceCtrl'

@@ -22,8 +22,39 @@ matomatControllers.controller('detailCtrl', ['$scope', '$http', '$rootScope', '$
 					);
 			}
 
-			$scope.loadDetails();
 }]);
+
+matomatControllers.controller('userCtrl', ['$scope', '$http', '$rootScope', '$location',
+		function($scope,$http, $rootScope, $location) {
+			$scope.new_user=$rootScope.user;
+
+			$scope.loadBalance=function(){
+				var url="/api/"+$rootScope.user+"/balance";
+				$http.get(url,{headers:{pass:$rootScope.pass}})
+					.error(function(data){
+						$location.path('/login');
+					}
+					);
+			}
+			$scope.loadBalance(); // check authentication
+
+			$scope.create_user=function(){
+				if ($scope.pass1!=$scope.pass2){
+					$scope.message="Zweiteingabe des Passwortes stimmt nicht";
+					return;
+				}
+				var url="/api/"+$rootScope.user+"/user";
+				var data={"username":$scope.new_user,"password":$scope.pass1};
+				$http.post(url,data,{headers:{pass:$rootScope.pass}})
+				.success(function(data){
+					$scope.message="Benutzer angelegt";
+				})
+				.error(function(data){
+					$scope.message="Benutzer konnte nicht angelegt werden";
+				});
+			}
+}]);
+
 matomatControllers.controller('balanceCtrl', ['$scope', '$http', '$rootScope', '$location',
 		function($scope,$http, $rootScope, $location) {
 			$scope.pay=function(amount){
