@@ -1,6 +1,7 @@
 import random
 import hashlib
 from database import User, Session
+from sqlalchemy import func
 
 def hashpw(salt,password):
 	h=hashlib.sha1()
@@ -8,19 +9,24 @@ def hashpw(salt,password):
 	h.update(password)
 	return h.hexdigest()
 
+def get_user(username):
+	user=Session.query(User).filter(func.lower(User.name)==func.lower(username)).all()
+	if len(user)!=1:
+		return None
+	return user[0]
+
 def check_user(username,password):
 	if password is None:
 		return False
-	s=Session()
-	user=s.query(User).filter(User.name==username).all()
-	if len(user)!=1:
+	user=get_user(username)
+	if user is None:
 		return False
-	salt_hashed=user[0].password.split('$',1)
+	salt_hashed=user.password.split('$',1)
 	if len(salt_hashed)!=2:
 		return False
 	salt,hashed=salt_hashed
 	if hashed==hashpw(salt.encode('ASCII'),password.encode('UTF-8')):
-		return True
+		return user.name
 	return False
 
 def genpw(password):
@@ -33,15 +39,15 @@ def genpw(password):
 	return ''.join([salt.decode('ASCII'),'$',hashpw(salt,password.encode('UTF-8'))])
 
 def create_user(username,password,creator):
-	s=Session()
-	user=s.query(User).filter(User.name==username).all()
-	if len(user)==0:
+	s=Session
+	user=get_user(username)
+	if user is None:
 		u=User(name=username,password=genpw(password),creator=creator)
 		s.add(u)
 		s.commit()
 		return True
-	if len(user)==1:
-		u=user[0]
+	else:
+		u=user
 		if u.id==creator:
 			u.password=genpw(password)
 			s.merge(u)
