@@ -28,17 +28,40 @@ matomatApp.config(['$routeProvider','$sceProvider',
       });
   }]);
 
-matomatApp.service('authenticator',['$location','$http','$log', function($location,$http,$log){
-	this.user='';
-	this.pass='';
+matomatApp.service('authenticator',['$location','$http','$log','$window', function($location,$http,$log,$window){
+	this.user=$window.localStorage['matomat_user'];
+	this.pass=$window.localStorage['matomat_pass'];
+	if (this.user){
+		this.remembered=true;
+	}
+	this.user=this.user?this.user:'';
+	this.pass=this.pass?this.pass:'';
+
+	this.remember = function(){
+		$window.localStorage['matomat_user']=this.user;
+		$window.localStorage['matomat_pass']=this.pass;
+		this.remembered=true;
+	};
+	this.forget = function(){
+		$window.localStorage.removeItem('matomat_user');
+		$window.localStorage.removeItem('matomat_pass');
+		this.remembered=false;
+	};
 	this.login_if_invalid = function() {
-		$log.debug(this.user+":"+this.pass);
 		var url="/api/"+this.user+"/balance";
 		$http.get(url,{headers:{pass:this.pass}})
 			.error(function(data,response){
 				if (response==403){
+					//this.forget();
 					$location.path('/login');
 				}
 			});
-		}
+		};
+	this.forward_if_valid = function(target) {
+		var url="/api/"+this.user+"/balance";
+		$http.get(url,{headers:{pass:this.pass}})
+			.success(function(data,response){
+				$location.path(target);
+			});
+		};
 }]);

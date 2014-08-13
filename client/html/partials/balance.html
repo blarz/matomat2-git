@@ -1,4 +1,7 @@
-Hallo {{user}}<br/>
+Hallo {{user}}
+<a href="" ng-click="remember()" ng-show="!remembered">remember me</a>
+<a href="" ng-click="forget()" ng-show="remembered">forget me</a>
+<br/>
 <div>
 	balance: {{balance/100}}&euro;
 </div>

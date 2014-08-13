@@ -2,10 +2,11 @@ var matomatControllers = angular.module('matomatControllers', []);
 
 matomatControllers.controller('loginCtrl', ['$scope','authenticator',
 		function ($scope,authenticator) {
-		$scope.setUser=function (user,pass) {
-			authenticator.user=user;
-			authenticator.pass=pass;
-		}
+			authenticator.forward_if_valid('/balance');
+			$scope.setUser=function (user,pass) {
+				authenticator.user=user;
+				authenticator.pass=pass;
+			}
 }]);
 
 matomatControllers.controller('detailCtrl', ['$scope', '$http', 'authenticator',
@@ -52,6 +53,7 @@ matomatControllers.controller('balanceCtrl', ['$scope', '$http', '$location', 'a
 			authenticator.login_if_invalid();
 			$scope.user=authenticator.user;
 			$scope.pass=authenticator.pass;
+			$scope.remembered=authenticator.remembered;
 			$scope.pay=function(amount){
 				var url="/api/"+$scope.user+"/pay";
 				$http.post(url,amount*100,{headers:{pass:$scope.pass}})
@@ -93,6 +95,14 @@ matomatControllers.controller('balanceCtrl', ['$scope', '$http', '$location', 'a
 					$scope.message="Kauf fehlgeschlagen";
 				});
 			};
+			$scope.remember=function(){
+				authenticator.remember();
+				$scope.remembered=authenticator.remembered;
+			}
+			$scope.forget=function(){
+				authenticator.forget();
+				$scope.remembered=authenticator.remembered;
+			}
 
 			$scope.loadBalance=function(){
 				var url="/api/"+$scope.user+"/balance";
