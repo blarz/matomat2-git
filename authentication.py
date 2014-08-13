@@ -9,6 +9,8 @@ def hashpw(salt,password):
 	return h.hexdigest()
 
 def check_user(username,password):
+	if password is None:
+		return False
 	s=Session()
 	user=s.query(User).filter(User.name==username).all()
 	if len(user)!=1:
