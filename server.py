@@ -6,6 +6,11 @@ import json
 import database as db
 from authentication import check_user, create_user
 
+try:
+	fnfError=FileNotFoundError
+except NameError:
+	fnfError=IOError
+
 class MatoHTTPRequestHandler(server.BaseHTTPRequestHandler):
 	def do_GET(self):
 		if self.path.startswith('/api'):
@@ -82,7 +87,7 @@ class MatoHTTPRequestHandler(server.BaseHTTPRequestHandler):
 				self.send_header("Content-Length", size)
 				self.end_headers()
 				shutil.copyfileobj(f,self.wfile)#.write(bytes(f.read(),'ASCII'))
-		except FileNotFoundError:
+		except fnfError:
 			return self.not_found();
 
 	def balance(self):
