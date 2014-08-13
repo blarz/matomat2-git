@@ -12,6 +12,7 @@ class User(Base):
 	id=Column(Integer,primary_key=True)
 	name=Column(String,unique=True)
 	password=Column(String)
+	creator=Column(Integer,nullable=True)
 
 class Item(Base):
 	__tablename__='items'

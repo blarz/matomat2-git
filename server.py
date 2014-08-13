@@ -4,7 +4,7 @@ import shutil
 import os
 import json
 import database as db
-from authentication import check_user
+from authentication import check_user, create_user
 
 class MatoHTTPRequestHandler(server.BaseHTTPRequestHandler):
 	def do_GET(self):
@@ -36,6 +36,8 @@ class MatoHTTPRequestHandler(server.BaseHTTPRequestHandler):
 			self.buy()
 		elif self.path.endswith('/undo'):
 			self.undo()
+		elif self.path.endswith('/user'):
+			self.user()
 		else:
 			self.not_found()
 
@@ -64,9 +66,9 @@ class MatoHTTPRequestHandler(server.BaseHTTPRequestHandler):
 		self.end_headers()
 
 	def auth(self):
-		username=self.path.split('/')[1]
+		self.username=self.path.split('/')[1]
 		password=self.headers.get('pass',None)
-		return check_user(username,password)
+		return check_user(self.username,password)
 
 
 	def servefile(self):
@@ -136,6 +138,28 @@ class MatoHTTPRequestHandler(server.BaseHTTPRequestHandler):
 		s.commit()
 		return self.created();
 
+	def user(self):
+		if not self.auth(): return self.forbidden()
+		length=self.headers.get('Content-Length',None)
+		if length is None:
+			return self.bad_request()
+		try:
+			d=(self.rfile.read(int(length)).decode('ASCII'))
+			data=json.loads(d)
+		except ValueError as ex:
+			return self.bad_request()
+		try:
+			username=data['username']
+			password=data['password']
+		except KeyError:
+			return self.bad_request()
+		s=db.Session()
+		u=s.query(User).filter(db.User.name==self.username).one()
+		if create_user(username,password,u.id):
+			return self.created()
+		else:
+			return self.forbidden()
+
 
 	def pay(self):
 		if not self.auth(): return self.forbidden()
@@ -149,7 +173,7 @@ class MatoHTTPRequestHandler(server.BaseHTTPRequestHandler):
 			return self.bad_request()
 		try:
 			amount=int(data)
-		except KeyError:
+		except ValueError:
 			return self.bad_request()
 		username=self.path.split('/')[1]
 		s=db.Session()
@@ -171,7 +195,7 @@ class MatoHTTPRequestHandler(server.BaseHTTPRequestHandler):
 			return self.bad_request()
 		try:
 			item_id=int(data)
-		except KeyError:
+		except ValueError:
 			return self.bad_request()
 		username=self.path.split('/')[1]
 		s=db.Session()
