@@ -58,7 +58,7 @@ matomatControllers.controller('balanceCtrl', ['$scope', '$http', '$location', 'a
 				var url="/api/"+$scope.user+"/pay";
 				$http.post(url,amount*100,{headers:{pass:$scope.pass}})
 				.success(function(data){
-					$scope.message=""+amount+"EUR (Eurozeichen (&euro;) gibts nicht. WTF AngularJS) eingezahlt";
+					$scope.message=""+amount+"EUR eingezahlt";
 					$scope.loadBalance();
 				})
 				.error(function(data){
@@ -70,11 +70,11 @@ matomatControllers.controller('balanceCtrl', ['$scope', '$http', '$location', 'a
 				var url="/api/"+$scope.user+"/undo";
 				$http.post(url,"",{headers:{pass:$scope.pass}})
 				.success(function(data){
-					$scope.message="letzte Aktion r&uuml;ckg&auml;ngig gemacht";
+					$scope.message="letzte Aktion rueckgaengig gemacht";
 					$scope.loadBalance();
 				})
 				.error(function(data){
-					$scope.message="letzte Aktion konnte nicht r&uuml;ckg&auml;ngig gemacht werden";
+					$scope.message="letzte Aktion konnte nicht rückgaengig gemacht werden";
 				});
 			};
 
@@ -86,7 +86,7 @@ matomatControllers.controller('balanceCtrl', ['$scope', '$http', '$location', 'a
 					for (i in $scope.items){
 						it=$scope.items[i];
 						if (it.id==item){
-							$scope.message="Ein "+it.name+" f&uuml;r (WTF AngularJS) "+it.price/100+"EUR gekauft";
+							$scope.message="Ein "+it.name+" fuer "+it.price/100+"EUR gekauft";
 							break;
 						}
 					}
