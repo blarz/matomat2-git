@@ -16,8 +16,10 @@ matomatControllers.controller('detailCtrl', ['$scope', '$http', '$rootScope', '$
 					.success(function(data){
 						$scope.details=data;
 					})
-					.error(function(data){
-						$location.path('/login');
+					.error(function(data,response){
+						if (response==403){
+							$location.path('/login');
+						}
 					}
 					);
 			}
@@ -31,8 +33,10 @@ matomatControllers.controller('userCtrl', ['$scope', '$http', '$rootScope', '$lo
 			$scope.loadBalance=function(){
 				var url="/api/"+$rootScope.user+"/balance";
 				$http.get(url,{headers:{pass:$rootScope.pass}})
-					.error(function(data){
-						$location.path('/login');
+					.error(function(data,response){
+						if (response==403){
+							$location.path('/login');
+						}
 					}
 					);
 			}
@@ -55,8 +59,8 @@ matomatControllers.controller('userCtrl', ['$scope', '$http', '$rootScope', '$lo
 			}
 }]);
 
-matomatControllers.controller('balanceCtrl', ['$scope', '$http', '$rootScope', '$location',
-		function($scope,$http, $rootScope, $location) {
+matomatControllers.controller('balanceCtrl', ['$scope', '$http', '$rootScope', '$location', '$log',
+		function($scope,$http, $rootScope, $location, $log) {
 			$scope.pay=function(amount){
 				var url="/api/"+$rootScope.user+"/pay";
 				$http.post(url,amount*100,{headers:{pass:$rootScope.pass}})
@@ -105,8 +109,10 @@ matomatControllers.controller('balanceCtrl', ['$scope', '$http', '$rootScope', '
 					.success(function(data){
 						$scope.balance=data;
 					})
-					.error(function(data){
-						$location.path('/login');
+					.error(function(data,response){
+						if (response==403){
+							$location.path('/login');
+						}
 					}
 					);
 			}

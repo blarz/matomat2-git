@@ -163,7 +163,7 @@ class MatoHTTPRequestHandler(server.BaseHTTPRequestHandler):
 		if create_user(username,password,u.id):
 			return self.created()
 		else:
-			return self.forbidden()
+			return self.bad_request()
 
 
 	def pay(self):
