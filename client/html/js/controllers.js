@@ -1,55 +1,43 @@
 var matomatControllers = angular.module('matomatControllers', []);
 
-matomatControllers.controller('loginCtrl', ['$scope', '$rootScope',
-		function ($scope,$rootScope) {
+matomatControllers.controller('loginCtrl', ['$scope','authenticator',
+		function ($scope,authenticator) {
 		$scope.setUser=function (user,pass) {
-			$rootScope.user=user;
-			$rootScope.pass=pass;
+			authenticator.user=user;
+			authenticator.pass=pass;
 		}
 }]);
 
-matomatControllers.controller('detailCtrl', ['$scope', '$http', '$rootScope', '$location',
-		function($scope,$http, $rootScope, $location) {
+matomatControllers.controller('detailCtrl', ['$scope', '$http', 'authenticator',
+		function($scope,$http, authenticator) {
+			authenticator.login_if_invalid();
+			$scope.user=authenticator.user;
+			$scope.pass=authenticator.pass;
 			$scope.loadDetails=function(){
-				var url="/api/"+$rootScope.user+"/details";
-				$http.get(url,{headers:{pass:$rootScope.pass}})
+				var url="/api/"+$scope.user+"/details";
+				$http.get(url,{headers:{pass:$scope.pass}})
 					.success(function(data){
 						$scope.details=data;
-					})
-					.error(function(data,response){
-						if (response==403){
-							$location.path('/login');
-						}
-					}
-					);
+					});
 			}
-
+			$scope.loadDetails();
 }]);
 
-matomatControllers.controller('userCtrl', ['$scope', '$http', '$rootScope', '$location',
-		function($scope,$http, $rootScope, $location) {
-			$scope.new_user=$rootScope.user;
-
-			$scope.loadBalance=function(){
-				var url="/api/"+$rootScope.user+"/balance";
-				$http.get(url,{headers:{pass:$rootScope.pass}})
-					.error(function(data,response){
-						if (response==403){
-							$location.path('/login');
-						}
-					}
-					);
-			}
-			$scope.loadBalance(); // check authentication
+matomatControllers.controller('userCtrl', ['$scope', '$http', 'authenticator',
+		function($scope,$http, authenticator) {
+			authenticator.login_if_invalid();
+			$scope.user=authenticator.user;
+			$scope.pass=authenticator.pass;
+			$scope.new_user=$scope.user;
 
 			$scope.create_user=function(){
 				if ($scope.pass1!=$scope.pass2){
 					$scope.message="Zweiteingabe des Passwortes stimmt nicht";
 					return;
 				}
-				var url="/api/"+$rootScope.user+"/user";
+				var url="/api/"+$scope.user+"/user";
 				var data={"username":$scope.new_user,"password":$scope.pass1};
-				$http.post(url,data,{headers:{pass:$rootScope.pass}})
+				$http.post(url,data,{headers:{pass:$scope.pass}})
 				.success(function(data){
 					$scope.message="Benutzer angelegt";
 				})
@@ -59,11 +47,14 @@ matomatControllers.controller('userCtrl', ['$scope', '$http', '$rootScope', '$lo
 			}
 }]);
 
-matomatControllers.controller('balanceCtrl', ['$scope', '$http', '$rootScope', '$location', '$log',
-		function($scope,$http, $rootScope, $location, $log) {
+matomatControllers.controller('balanceCtrl', ['$scope', '$http', '$location', 'authenticator',
+		function($scope,$http,  $location, authenticator) {
+			authenticator.login_if_invalid();
+			$scope.user=authenticator.user;
+			$scope.pass=authenticator.pass;
 			$scope.pay=function(amount){
-				var url="/api/"+$rootScope.user+"/pay";
-				$http.post(url,amount*100,{headers:{pass:$rootScope.pass}})
+				var url="/api/"+$scope.user+"/pay";
+				$http.post(url,amount*100,{headers:{pass:$scope.pass}})
 				.success(function(data){
 					$scope.message=""+amount+"EUR (Eurozeichen (&euro;) gibts nicht. WTF AngularJS) eingezahlt";
 					$scope.loadBalance();
@@ -74,8 +65,8 @@ matomatControllers.controller('balanceCtrl', ['$scope', '$http', '$rootScope', '
 			};
 
 			$scope.undo=function(){
-				var url="/api/"+$rootScope.user+"/undo";
-				$http.post(url,"",{headers:{pass:$rootScope.pass}})
+				var url="/api/"+$scope.user+"/undo";
+				$http.post(url,"",{headers:{pass:$scope.pass}})
 				.success(function(data){
 					$scope.message="letzte Aktion r&uuml;ckg&auml;ngig gemacht";
 					$scope.loadBalance();
@@ -86,8 +77,8 @@ matomatControllers.controller('balanceCtrl', ['$scope', '$http', '$rootScope', '
 			};
 
 			$scope.buy=function(item){
-				var url="/api/"+$rootScope.user+"/buy";
-				$http.post(url,item,{headers:{pass:$rootScope.pass}})
+				var url="/api/"+$scope.user+"/buy";
+				$http.post(url,item,{headers:{pass:$scope.pass}})
 				.success(function(data){
 					$scope.loadBalance();
 					for (i in $scope.items){
@@ -104,15 +95,13 @@ matomatControllers.controller('balanceCtrl', ['$scope', '$http', '$rootScope', '
 			};
 
 			$scope.loadBalance=function(){
-				var url="/api/"+$rootScope.user+"/balance";
-				$http.get(url,{headers:{pass:$rootScope.pass}})
+				var url="/api/"+$scope.user+"/balance";
+				$http.get(url,{headers:{pass:$scope.pass}})
 					.success(function(data){
 						$scope.balance=data;
 					})
 					.error(function(data,response){
-						if (response==403){
-							$location.path('/login');
-						}
+						$scope.message="Konnte anktuellen Kontostand nicht empfangen";
 					}
 					);
 			}

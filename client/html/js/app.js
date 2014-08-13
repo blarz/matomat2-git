@@ -27,3 +27,18 @@ matomatApp.config(['$routeProvider','$sceProvider',
         redirectTo: '/login'
       });
   }]);
+
+matomatApp.service('authenticator',['$location','$http','$log', function($location,$http,$log){
+	this.user='';
+	this.pass='';
+	this.login_if_invalid = function() {
+		$log.debug(this.user+":"+this.pass);
+		var url="/api/"+this.user+"/balance";
+		$http.get(url,{headers:{pass:this.pass}})
+			.error(function(data,response){
+				if (response==403){
+					$location.path('/login');
+				}
+			});
+		}
+}]);
