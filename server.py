@@ -78,7 +78,6 @@ class MatoHTTPRequestHandler(server.BaseHTTPRequestHandler):
 
 	def servefile(self):
 		filename=os.path.join(os.getcwd(),'client','html',self.path[1:])
-		print(filename)
 		try:
 			with open(filename,'rb') as f:
 				size=f.seek(0,2)
