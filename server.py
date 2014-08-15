@@ -21,6 +21,8 @@ class MatoHTTPRequestHandler(server.BaseHTTPRequestHandler):
 				self.items()
 			elif self.path.endswith('/details'):
 				self.details()
+			elif self.path.endswith('/user'):
+				self.user_get()
 			else:
 				self.not_found()
 		else:
@@ -164,6 +166,13 @@ class MatoHTTPRequestHandler(server.BaseHTTPRequestHandler):
 		else:
 			return self.bad_request()
 
+	def user_get(self):
+		if not self.auth(): return self.forbidden()
+		user=get_user(self.username)
+		self.send_response(200)
+		self.send_header("Content-type", "application/json")
+		self.end_headers()
+		self.wfile.write(bytes(json.dumps(user.name),'UTF-8'))
 
 	def pay(self):
 		if not self.auth(): return self.forbidden()
