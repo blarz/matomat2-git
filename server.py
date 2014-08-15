@@ -172,7 +172,7 @@ class MatoHTTPRequestHandler(server.BaseHTTPRequestHandler):
 		self.send_response(200)
 		self.send_header("Content-type", "application/json")
 		self.end_headers()
-		self.wfile.write(bytes(json.dumps(user.name),'UTF-8'))
+		self.wfile.write(bytes(json.dumps({"username":user.name}),'UTF-8'))
 
 	def pay(self):
 		if not self.auth(): return self.forbidden()
