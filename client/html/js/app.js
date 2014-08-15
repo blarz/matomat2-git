@@ -49,19 +49,24 @@ matomatApp.service('authenticator',['$location','$http','$log','$window', functi
 	};
 	this.login_if_invalid = function() {
 		var url="/api/"+this.user+"/user";
-		forget=this.forget;
+		auth=this;
 		$http.get(url,{headers:{pass:this.pass}})
+			.success(function(data,response){
+				auth.user=data.username;
+			})
 			.error(function(data,response){
 				if (response==403){
-					forget();
+					auth.forget();
 					$location.path('/login');
 				}
 			});
 		};
 	this.forward_if_valid = function(target) {
-		var url="/api/"+this.user+"/balance";
+		var url="/api/"+this.user+"/user";
+		auth=this;
 		$http.get(url,{headers:{pass:this.pass}})
 			.success(function(data,response){
+				auth.user=data;
 				$location.path(target);
 			});
 		};
