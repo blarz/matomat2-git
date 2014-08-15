@@ -48,11 +48,12 @@ matomatApp.service('authenticator',['$location','$http','$log','$window', functi
 		this.remembered=false;
 	};
 	this.login_if_invalid = function() {
-		var url="/api/"+this.user+"/balance";
+		var url="/api/"+this.user+"/user";
+		forget=this.forget;
 		$http.get(url,{headers:{pass:this.pass}})
 			.error(function(data,response){
 				if (response==403){
-					//this.forget();
+					forget();
 					$location.path('/login');
 				}
 			});
