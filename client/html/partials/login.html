@@ -1,7 +1,9 @@
 <div>
+	<form ng-submit="setUser(user,pass)">
 user: <input ng-model="user" />
-pass: <input ng-model="pass" />
+pass: <input type="password" ng-model="pass" />
 <br/>
-<a href="" ng-click="setUser(user,pass)">login</a>
+<input type="submit" value="login" />
+</form>
 
 </div>
