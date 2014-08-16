@@ -67,7 +67,7 @@ matomatApp.service('authenticator',['$location','$http','$log','$window', functi
 		$http.get(url,{headers:{pass:this.pass}})
 			.success(function(data,response){
 				auth.user=data.username;
-				$location.path(target);
+				$location.path(target).replace();
 			});
 		};
 }]);
