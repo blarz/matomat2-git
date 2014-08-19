@@ -5,6 +5,7 @@ import os
 import json
 import database as db
 from authentication import check_user, create_user, get_user
+import config
 
 try:
 	fnfError=FileNotFoundError
@@ -12,6 +13,10 @@ except NameError:
 	fnfError=IOError
 
 class MatoHTTPRequestHandler(server.BaseHTTPRequestHandler):
+	def __init__(self,*args):
+		self.Session=args[2].Session()
+		super().__init__(*args)
+
 	def do_GET(self):
 		if self.path.startswith('/api'):
 			self.path=self.path[4:]
@@ -75,7 +80,7 @@ class MatoHTTPRequestHandler(server.BaseHTTPRequestHandler):
 	def auth(self):
 		self.username=self.path.split('/')[1]
 		password=self.headers.get('pass',None)
-		return check_user(self.username,password)
+		return check_user(self.Session,self.username,password)
 
 
 	def servefile(self):
@@ -94,8 +99,8 @@ class MatoHTTPRequestHandler(server.BaseHTTPRequestHandler):
 	def balance(self):
 		if not self.auth(): return self.forbidden()
 		username=self.path.split('/')[1]
-		s=db.Session
-		user=get_user(username)
+		s=self.Session
+		user=get_user(s,username)
 		money_in=sum((x.amount for x in s.query(db.Pay).filter(db.Pay.user==user)))
 		money_out=sum((x.amount for x in s.query(db.Sale).filter(db.Sale.user==user)))
 		data=money_in-money_out
@@ -107,8 +112,8 @@ class MatoHTTPRequestHandler(server.BaseHTTPRequestHandler):
 	def details(self):
 		if not self.auth(): return self.forbidden()
 		username=self.path.split('/')[1]
-		s=db.Session
-		user=get_user(username)
+		s=self.Session
+		user=get_user(s,username)
 		money_in=s.query(db.Pay).filter(db.Pay.user==user).all()
 		money_out=s.query(db.Sale).filter(db.Sale.user==user).all()
 		money=sorted(money_in+money_out,key=lambda x:x.time)
@@ -127,8 +132,8 @@ class MatoHTTPRequestHandler(server.BaseHTTPRequestHandler):
 	def undo(self):
 		if not self.auth(): return self.forbidden()
 		username=self.path.split('/')[1]
-		s=db.Session
-		user=get_user(username)
+		s=self.Session
+		user=get_user(s,username)
 		last_in=s.query(db.Pay).filter(db.Pay.user==user).order_by(db.Pay.time.desc()).first()
 		last_out=s.query(db.Sale).filter(db.Sale.user==user).order_by(db.Sale.time.desc()).first()
 		if last_in is None:
@@ -159,16 +164,16 @@ class MatoHTTPRequestHandler(server.BaseHTTPRequestHandler):
 			password=data['password']
 		except KeyError:
 			return self.bad_request()
-		s=db.Session
-		u=get_user(self.username)
-		if create_user(username,password,u.id):
+		s=self.Session
+		u=get_user(s,self.username)
+		if create_user(s,username,password,u.id):
 			return self.created()
 		else:
 			return self.bad_request()
 
 	def user_get(self):
 		if not self.auth(): return self.forbidden()
-		user=get_user(self.username)
+		user=get_user(self.Session,self.username)
 		self.send_response(200)
 		self.send_header("Content-type", "application/json")
 		self.end_headers()
@@ -189,8 +194,8 @@ class MatoHTTPRequestHandler(server.BaseHTTPRequestHandler):
 		except ValueError:
 			return self.bad_request()
 		username=self.path.split('/')[1]
-		s=db.Session
-		user=get_user(username)
+		s=self.Session
+		user=get_user(s,username)
 		p=db.Pay(user=user,amount=amount)
 		s.add(p)
 		s.commit()
@@ -211,8 +216,8 @@ class MatoHTTPRequestHandler(server.BaseHTTPRequestHandler):
 		except ValueError:
 			return self.bad_request()
 		username=self.path.split('/')[1]
-		s=db.Session
-		user=get_user(username)
+		s=self.Session
+		user=get_user(s,username)
 		item=s.query(db.Item).filter(db.Item.id==item_id).one()
 		sale=db.Sale(user=user,item=item,amount=item.price)
 		s.add(sale)
@@ -220,7 +225,7 @@ class MatoHTTPRequestHandler(server.BaseHTTPRequestHandler):
 		return self.created()
 
 	def items(self):
-		s=db.Session
+		s=self.Session
 		items_q=s.query(db.Item)
 		items=[{"id":x.id,"name":x.name,"price":x.price} for x in items_q]
 		self.send_response(200)
@@ -231,4 +236,5 @@ class MatoHTTPRequestHandler(server.BaseHTTPRequestHandler):
 
 if __name__=='__main__':
 	s=server.HTTPServer(('',8000),MatoHTTPRequestHandler)
+	s.Session=db.create_sessionmaker(config.dbengine)
 	s.serve_forever()

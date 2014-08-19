@@ -1,6 +1,6 @@
 import random
 import hashlib
-from database import User, Session
+from database import User
 from sqlalchemy import func
 
 def hashpw(salt,password):
@@ -9,16 +9,16 @@ def hashpw(salt,password):
 	h.update(password)
 	return h.hexdigest()
 
-def get_user(username):
+def get_user(Session,username):
 	user=Session.query(User).filter(func.lower(User.name)==func.lower(username)).all()
 	if len(user)!=1:
 		return None
 	return user[0]
 
-def check_user(username,password):
+def check_user(Session,username,password):
 	if password is None:
 		return False
-	user=get_user(username)
+	user=get_user(Session,username)
 	if user is None:
 		return False
 	salt_hashed=user.password.split('$',1)
@@ -38,9 +38,9 @@ def genpw(password):
 	salt=b''.join(random.sample(saltbase,10))
 	return ''.join([salt.decode('ASCII'),'$',hashpw(salt,password.encode('UTF-8'))])
 
-def create_user(username,password,creator):
+def create_user(Session,username,password,creator):
 	s=Session
-	user=get_user(username)
+	user=get_user(s,username)
 	if user is None:
 		u=User(name=username,password=genpw(password),creator=creator)
 		s.add(u)

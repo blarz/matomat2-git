@@ -3,8 +3,6 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, relationship
 from sqlalchemy import create_engine
 
-from config import dbengine
-
 Base=declarative_base()
 
 class User(Base):
@@ -38,6 +36,8 @@ class Pay(Base):
 	time=Column(DateTime, default=func.now())
 	user=relationship('User')
 
-__engine=create_engine(dbengine)
-Base.metadata.create_all(__engine)
-Session=sessionmaker(bind=__engine)()
+def create_sessionmaker(dbengine):
+	__engine=create_engine(dbengine)
+	Base.metadata.create_all(__engine)
+	Session=sessionmaker(bind=__engine)
+	return Session
