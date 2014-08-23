@@ -55,6 +55,7 @@ class MatoHTTPRequestHandler(server.BaseHTTPRequestHandler):
 			elif cmd=='buy': return self.buy()
 			elif cmd=='undo': return self.undo()
 			elif cmd=='user': return self.user()
+			elif cmd=='transfer': return self.transfer()
 			return self.not_found()
 		except NotAutheticatedError:
 			return self.forbidden()
@@ -159,6 +160,22 @@ class MatoHTTPRequestHandler(server.BaseHTTPRequestHandler):
 			return self.bad_request()
 		self.matomat.buy(self.matomat.lookup_item(item_id))
 		return self.created()
+
+	def transfer(self):
+		data=self.load_json()
+		try:
+			amount=data['amount']
+			recipient=data['recipient']
+		except:
+			return self.bad_request()
+		user=get_user(recipient)
+		if user is None: return self.bad_request()
+		try:
+			self.matomat.transfer(amount,recipient)
+		except ValueError:
+			return self.bad_request()
+		return self.created()
+
 
 	def items(self):
 		items=self.matomat.items()
