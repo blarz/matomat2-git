@@ -168,8 +168,6 @@ class MatoHTTPRequestHandler(server.BaseHTTPRequestHandler):
 			recipient=data['recipient']
 		except:
 			return self.bad_request()
-		user=get_user(recipient)
-		if user is None: return self.bad_request()
 		try:
 			self.matomat.transfer(amount,recipient)
 		except ValueError:

@@ -90,6 +90,10 @@ class matomat(object):
 
 	@require_auth
 	def transfer(self,amount,to):
+		if not isinstance(to,db.User):
+			to=get_user(self.session,to)
+			if to is None:
+				raise ValueError('Unknown User')
 		amount=int(amount)
 		if amount<0:
 			raise ValueError('Can only transfer positive amounts')
