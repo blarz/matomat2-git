@@ -1,6 +1,7 @@
 
-  <table>
+  <table border="1">
+	  <tr><th>Zeit</td><th>Item</th><th>Betrag</th><th>Sender</th><th>Empf&auml;nger</th></tr>
     <tr ng-repeat="item in details">
-		<td>{{item.time}}</td><td>{{item.Item}}</td><td>{{item.amount/100}}&euro;</td>
+		<td>{{item.time}}</td><td>{{item.Item}}</td><td>{{item.amount/100}}&euro;</td><td>{{item.sender}}</td><td>{{item.recipient}}</td>
     </tr>
   </table>
