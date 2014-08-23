@@ -22,3 +22,9 @@ Hallo {{user}}
 		<a href="" ng-click="buy(item.id)" class="btn btn-default">{{item.name}} {{item.price/100}}&euro;</a>
     </div>
 </div>
+<div>
+	Geld &uuml;berweisen<br/>
+	An: <input ng-model="recipient" size="5"/><br/>
+	Betrag: <input ng-model="trans_amount" size="5"/>
+	<a href="" ng-click="transfer(trans_amount,recipient)" class="btn btn-default">&Uuml;berweisen</a>
+</div>
