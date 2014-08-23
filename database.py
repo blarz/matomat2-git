@@ -44,7 +44,7 @@ class Transfer(Base):
 	amount=Column(Integer)
 	time=Column(DateTime, default=func.now())
 	sender=relationship('User', foreign_keys=sender_id)
-	recipientd=relationship('User',foreign_keys=recipient_id)
+	recipient=relationship('User',foreign_keys=recipient_id)
 
 def create_sessionmaker(dbengine):
 	__engine=create_engine(dbengine)
