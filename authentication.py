@@ -17,17 +17,17 @@ def get_user(Session,username):
 
 def check_user(Session,username,password):
 	if password is None:
-		return False
+		return None
 	user=get_user(Session,username)
 	if user is None:
-		return False
+		return None
 	salt_hashed=user.password.split('$',1)
 	if len(salt_hashed)!=2:
-		return False
+		return None
 	salt,hashed=salt_hashed
 	if hashed==hashpw(salt.encode('ASCII'),password.encode('UTF-8')):
-		return user.name
-	return False
+		return user
+	return None
 
 def genpw(password):
 	saltbase=(

@@ -67,6 +67,19 @@ matomatControllers.controller('balanceCtrl', ['$scope', '$http', '$location', 'a
 				});
 			};
 
+			$scope.transfer=function(amount,recipient){
+				var url="/api/"+$scope.user+"/transfer";
+				data={'amount':amount*100,'recipient':recipient};
+				$http.post(url,data,{headers:{pass:$scope.pass}})
+				.success(function(data){
+					$scope.message=""+amount+"EUR überwiesen";
+					$scope.loadBalance();
+				})
+				.error(function(data){
+					$scope.message="Überweisung fehlgeschlagen";
+				});
+			};
+
 			$scope.undo=function(){
 				var url="/api/"+$scope.user+"/undo";
 				$http.post(url,"",{headers:{pass:$scope.pass}})

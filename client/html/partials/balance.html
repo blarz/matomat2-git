@@ -22,5 +22,11 @@
 	</div>
 	{{message}}
 	<a href="" ng-click="undo(50)" class="btn btn-default">undo</a>
+	<div>
+		Geld &uuml;berweisen<br/>
+		An: <input ng-model="recipient" size="5"/><br/>
+		Betrag: <input ng-model="trans_amount" size="5"/>
+		<a href="" ng-click="transfer(trans_amount,recipient)" class="btn btn-default">&Uuml;berweisen</a>
+	</div>
 </div>
 
