@@ -1,5 +1,5 @@
 import config
-from matomat import NotAutheticatedError, matomat_factory
+from matomat import NotAuthenticatedError, matomat_factory
 import json
 
 class matomat_wsgi(object):
@@ -55,7 +55,7 @@ class matomat_wsgi(object):
 			elif self.cmd=='details':return self.details()
 			elif self.cmd=='user':return self.user_get()
 			return self.not_found()
-		except NotAutheticatedError:
+		except NotAuthenticatedError:
 			return self.forbidden()
 
 	def do_POST(self):
@@ -66,7 +66,7 @@ class matomat_wsgi(object):
 			elif self.cmd=='user': return self.user()
 			elif self.cmd=='transfer': return self.transfer()
 			return self.not_found()
-		except NotAutheticatedError:
+		except NotAuthenticatedError:
 			return self.forbidden()
 
 	def balance(self):

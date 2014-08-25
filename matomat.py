@@ -2,7 +2,7 @@ from authentication import check_user, create_user, get_user
 from datetime import datetime
 import database as db
 
-class NotAutheticatedError(Exception):
+class NotAuthenticatedError(Exception):
 	pass
 
 class matomat_factory(object):
@@ -15,7 +15,7 @@ class matomat_factory(object):
 def require_auth(fun):
 	def inner(self,*args,**kwargs):
 		if not self.is_auth():
-			raise NotAutheticatedError('Not authenticated')
+			raise NotAuthenticatedError('Not authenticated')
 		return fun(self,*args,**kwargs)
 	return inner
 
