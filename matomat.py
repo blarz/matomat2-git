@@ -105,11 +105,13 @@ class matomat(object):
 	def undo(self):
 		last_in=self.session.query(db.Pay).filter(db.Pay.user==self._user).order_by(db.Pay.time.desc()).first()
 		last_out=self.session.query(db.Sale).filter(db.Sale.user==self._user).order_by(db.Sale.time.desc()).first()
-		last_transfer=self.session.query(db.Transfer).filter(db.Transfer.sender==self._user).order_by(db.Sale.time.desc()).first()
-		if last_in is None: last_in=datetime(year=1900,month=1,day=1)
-		if last_out is None: last_out=datetime(year=1900,month=1,day=1)
-		if last_transfer is None: last_transfer=datetime(year=1900,month=1,day=1)
-		to_del=max([last_in,last_out,last_transfer],key=lambda x:x.time)
+		last_transfer=self.session.query(db.Transfer).filter(db.Transfer.sender==self._user).order_by(db.Transfer.time.desc()).first()
+		candidates=[]
+		if not last_in is None: candidates.append(last_in)
+		if not last_out is None: candidates.append(last_out)
+		if not last_transfer is None: candidates.append(last_transfer)
+		if len(candidates)==0: return
+		to_del=max(candidates,key=lambda x:x.time)
 		self.session.delete(to_del)
 		self.session.commit()
 
