@@ -6,6 +6,9 @@ matomatControllers.controller('loginCtrl', ['$scope','authenticator',
 			$scope.setUser=function (user,pass) {
 				authenticator.user=user;
 				authenticator.pass=pass;
+				if ($scope.remember){
+					authenticator.remember();
+				}
 				authenticator.forward_if_valid('/balance');
 			}
 }]);
