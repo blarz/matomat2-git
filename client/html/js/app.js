@@ -43,19 +43,16 @@ matomatApp.service('authenticator',['$location','$http','$log','$window','$rootS
 		this.remembered=true;
 	};
 	this.forget = function(){
-		$log.log('forget');
 		$window.localStorage.removeItem('matomat_user');
 		$window.localStorage.removeItem('matomat_pass');
 		this.remembered=false;
 		this.user='';
 		this.pass='';
 	};
-	var set_forget=function(v){
-		$rootScope.forget = function(){
-			v.forget();
-		};
+	var me=this;
+	$rootScope.forget = function(){
+			me.forget();
 	};
-	set_forget(this);
 	this.login_if_invalid = function() {
 		var url="/api/"+this.user+"/user";
 		auth=this;
