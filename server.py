@@ -10,6 +10,8 @@ except NameError:
 	fnfError=IOError
 
 def strip_app(environ,start_response):
+	if environ['PATH_INFO']=='/':
+		environ['PATH_INFO']='/index.html'
 	if environ['PATH_INFO'].startswith('/api'):
 		shift_path_info(environ)
 	else:
