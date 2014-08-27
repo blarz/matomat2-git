@@ -28,7 +28,7 @@ matomatApp.config(['$routeProvider','$sceProvider',
       });
   }]);
 
-matomatApp.service('authenticator',['$location','$http','$log','$window', function($location,$http,$log,$window){
+matomatApp.service('authenticator',['$location','$http','$log','$window','$rootScope', function($location,$http,$log,$window,$rootScope){
 	this.user=$window.localStorage['matomat_user'];
 	this.pass=$window.localStorage['matomat_pass'];
 	if (this.user){
@@ -43,10 +43,19 @@ matomatApp.service('authenticator',['$location','$http','$log','$window', functi
 		this.remembered=true;
 	};
 	this.forget = function(){
+		$log.log('forget');
 		$window.localStorage.removeItem('matomat_user');
 		$window.localStorage.removeItem('matomat_pass');
 		this.remembered=false;
+		this.user='';
+		this.pass='';
 	};
+	var set_forget=function(v){
+		$rootScope.forget = function(){
+			v.forget();
+		};
+	};
+	set_forget(this);
 	this.login_if_invalid = function() {
 		var url="/api/"+this.user+"/user";
 		auth=this;
