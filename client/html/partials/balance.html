@@ -1,26 +1,20 @@
 	<!--Hallo {{user}}-->
 <div class="container">
-	<h3>Quickbuy</h3>
+	<h3><span class="glyphicon glyphicon-home" /> Quickbuy</h3>
+	<div class="input-group">
 	<div>
 		<ul class="quickbuy" ng-repeat="item in items">
 			<li><a href="" ng-click="buy(item.id)" class="btn btn-default">{{item.name}} {{item.price/100}}&euro;</a></li>
 		</ul>  
 	</div>  
-	<h3>Balance: {{balance/100}}&euro;</h3>
-	<a href="#/details" class="btn btn-default">Detailansicht</a>
-	<a href="#/user" class="btn btn-default">Neuer Benutzer/Passwort &auml;ndern</a>
-	<div>
-		<input ng-model="amount" size="5"/>
-		<a href="" ng-click="pay(amount)" class="btn btn-default">einzahlen</a>
-		<a href="" ng-click="pay(10)" class="btn btn-default">10</a>
-		<a href="" ng-click="pay(20)" class="btn btn-default">20</a>
-		<a href="" ng-click="pay(50)" class="btn btn-default">50</a>
-	</div>
 	{{message}}
-	<a href="" ng-click="undo(50)" class="btn btn-default">undo</a>
-	<h3>Bankfunktionen</h3>
+	<h3><span class="glyphicon glyphicon-euro"/> Bankfunktionen</h3>
 	<div>
+		Balance: {{balance/100}} 
+		<br/>
 		Geld &uuml;berweisen<br/>
+		<span class="glyphicon glyphicon-search"></span>
+
 		<div class="input-group">
 			<span class="input-group-addon">An:</span>
 	    		<input type="text" class="form-control" placeholder="Empfänger" ng-model="recipient">
@@ -31,5 +25,17 @@
                 </div>
 		<a href="" ng-click="transfer(trans_amount,recipient)" class="btn btn-default">&Uuml;berweisen</a>
 	</div>
+        <h3><span class="glyphicon glyphicon-user"/> Administration</h3>	
+	<a href="#/details" class="btn btn-default">Detailansicht</a>
+	<a href="#/user" class="btn btn-default">Neuer Benutzer/Passwort &auml;ndern</a>
+	<div>
+		<input ng-model="amount" size="5"/>
+		<a href="" ng-click="pay(amount)" class="btn btn-default">einzahlen</a>
+		<a href="" ng-click="pay(10)" class="btn btn-default">10</a>
+		<a href="" ng-click="pay(20)" class="btn btn-default">20</a>
+		<a href="" ng-click="pay(50)" class="btn btn-default">50</a>
+	        <a href="" ng-click="undo(50)" class="btn btn-default">undo</a>
+	</div>
+
 </div>
 
