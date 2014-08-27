@@ -1,8 +1,4 @@
-<div class="info">
-	<p>Hallo {{user}}</p>
-	<a href="" ng-click="remember()" ng-show="!remembered">remember me</a>
-	<a href="" ng-click="forget()" ng-show="remembered">forget me</a>
-</div>
+	<!--Hallo {{user}}-->
 <div class="container">
 	<h3>Quickbuy</h3>
 	<div>
@@ -10,7 +6,7 @@
 			<li><a href="" ng-click="buy(item.id)" class="btn btn-default">{{item.name}} {{item.price/100}}&euro;</a></li>
 		</ul>  
 	</div>  
-	<h2>Balance: {{balance/100}}&euro;</h2>
+	<h3>Balance: {{balance/100}}&euro;</h3>
 	<a href="#/details" class="btn btn-default">Detailansicht</a>
 	<a href="#/user" class="btn btn-default">Neuer Benutzer/Passwort &auml;ndern</a>
 	<div>
@@ -22,10 +18,17 @@
 	</div>
 	{{message}}
 	<a href="" ng-click="undo(50)" class="btn btn-default">undo</a>
+	<h3>Bankfunktionen</h3>
 	<div>
 		Geld &uuml;berweisen<br/>
-		An: <input ng-model="recipient" size="5"/><br/>
-		Betrag: <input ng-model="trans_amount" size="5"/>
+		<div class="input-group">
+			<span class="input-group-addon">An:</span>
+	    		<input type="text" class="form-control" placeholder="Empfänger" ng-model="recipient">
+		</div>
+                <div class="input-group">
+                        <span class="input-group-addon">Betrag:</span>
+                        <input type="text" class="form-control" placeholder="Betrag" ng-model="trans_amount">
+                </div>
 		<a href="" ng-click="transfer(trans_amount,recipient)" class="btn btn-default">&Uuml;berweisen</a>
 	</div>
 </div>
