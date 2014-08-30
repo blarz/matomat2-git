@@ -30,7 +30,7 @@ class matomat_wsgi(object):
 		return []
 
 	def json_response(self,data):
-		self.start_response('200 OK',[("Content-type", "application/json")])
+		self.start_response('200 OK',[("Content-type", "application/json"),("Cache-Control", "no-cache")])
 		return [json.dumps(data).encode('UTF-8')]
 
 	def init(self):
