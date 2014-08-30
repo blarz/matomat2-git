@@ -1,1 +1,1 @@
-dbengine='sqlite:///home/mato/matomat2/matomat.db'
+dbengine='mysql+oursql://matomat:eel7zahr8xaiNgie@localhost:3306/matomat'
