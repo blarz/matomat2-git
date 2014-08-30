@@ -8,14 +8,14 @@ Base=declarative_base()
 class User(Base):
 	__tablename__='users'
 	id=Column(Integer,primary_key=True)
-	name=Column(String,unique=True)
-	password=Column(String)
+	name=Column(String(32),unique=True)
+	password=Column(String(128))
 	creator=Column(Integer,nullable=True)
 
 class Item(Base):
 	__tablename__='items'
 	id=Column(Integer,primary_key=True)
-	name=Column(String)
+	name=Column(String(32))
 	price=Column(Integer)
 
 class Sale(Base):
