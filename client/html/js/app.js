@@ -54,7 +54,7 @@ matomatApp.service('authenticator',['$location','$http','$log','$window','$rootS
 			me.forget();
 	};
 	this.login_if_invalid = function() {
-		var url="/api/"+this.user+"/user";
+		var url="api/"+this.user+"/user";
 		auth=this;
 		$http.get(url,{headers:{pass:this.pass}})
 			.success(function(data,response){
@@ -68,7 +68,7 @@ matomatApp.service('authenticator',['$location','$http','$log','$window','$rootS
 			});
 		};
 	this.forward_if_valid = function(target) {
-		var url="/api/"+this.user+"/user";
+		var url="api/"+this.user+"/user";
 		auth=this;
 		$http.get(url,{headers:{pass:this.pass}})
 			.success(function(data,response){
