@@ -1,0 +1,3 @@
+Configuration
+-------------
+Copy 'config.py.ex' to 'config.py' and adjust the 'dbengine' variable to your local configuration.
