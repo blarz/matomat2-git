@@ -115,6 +115,19 @@ class matomat(object):
 		self.session.delete(to_del)
 		self.session.commit()
 
+	@require_auth
+	def add_item(self,name,price,id=None):
+		i=db.Item(id=id,name=name,price=price)
+		self.session.merge(i)
+		self.session.commit()
+
+	@require_auth
+	def delete_item(self,item):
+		if isinstance(item,int):
+			item=self.lookup_item(item)
+		self.session.delete(item)
+		self.session.commit()
+
 	def lookup_item(self,item_id):
 		item=self.session.query(db.Item).filter(db.Item.id==item_id).one()
 		return item
