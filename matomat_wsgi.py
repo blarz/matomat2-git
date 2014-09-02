@@ -9,6 +9,10 @@ class matomat_wsgi(object):
 	def __init__(self,matomat):
 		self.matomat=matomat
 
+	def OK(self):
+		self.start_response('200 OK',[])
+		return []
+
 	def created(self):
 		self.start_response('201 CREATED',[])
 		return []
@@ -35,10 +39,12 @@ class matomat_wsgi(object):
 
 	def init(self):
 		parts=self.path.split('/')
-		if len(parts)>2:
+		parts.pop(0)
+		if len(parts)>1:
 			password=self.environ.get('HTTP_PASS',None)
-			self.matomat.auth(parts[1],password)
-		return parts[-1]
+			self.matomat.auth(parts.pop(0),password)
+		cmd=parts.pop(0)
+		return (cmd,parts)
 
 	def load_json(self):
 		length=int(self.environ.get('CONTENT_LENGTH',0))
@@ -61,6 +67,13 @@ class matomat_wsgi(object):
 		except NotAuthenticatedError:
 			return self.forbidden()
 
+	def do_PUT(self):
+		try:
+			if self.cmd=='items':return self.items_put()
+			return self.not_found()
+		except NotAuthenticatedError:
+			return self.forbidden()
+		
 	def do_POST(self):
 		try:
 			if self.cmd=='pay': return self.pay()
@@ -68,10 +81,18 @@ class matomat_wsgi(object):
 			elif self.cmd=='undo': return self.undo()
 			elif self.cmd=='user': return self.user()
 			elif self.cmd=='transfer': return self.transfer()
+			elif self.cmd=='items':return self.items_post()
 			return self.not_found()
 		except NotAuthenticatedError:
 			return self.forbidden()
 
+	def do_DELETE(self):
+		try:
+			if self.cmd=='items':return self.items_delete()
+			return self.not_found()
+		except NotAuthenticatedError:
+			return self.forbidden()
+		
 	def balance(self):
 		return self.json_response(self.matomat.balance())
 
@@ -83,6 +104,43 @@ class matomat_wsgi(object):
 
 	def user_get(self):
 		return self.json_response({'username':self.matomat.username()})
+
+	def items_put(self):
+		try:
+			item=self.arg.pop(0)
+		except IndexError:
+			return self.not_found()
+		if not item is None:
+			try:
+				item=int(item)
+			except ValueError:
+				return self.bad_request()
+		data=self.load_json()
+		try:
+			name=data['name']
+			price=int(data['price'])
+		except KeyError:
+			return self.bad_request()
+		except ValueError:
+			return self.bad_request()
+		self.matomat.add_item(id=item,name=name,price=price)
+		return self.OK()
+
+	def items_post(self):
+		self.arg=[None]
+		return self.items_put()
+
+	def items_delete(self):
+		try:
+			item=self.arg.pop(0)
+		except IndexError:
+			return self.not_found()
+		try:
+			item=int(item)
+		except ValueError:
+			return self.bad_request()
+		self.matomat.delete_item(item)
+		return self.OK()
 
 	def pay(self):
 		data=self.load_json()
@@ -140,9 +198,11 @@ class matomat_wsgi(object):
 		self.start_response=start_response
 		self.method=environ['REQUEST_METHOD']
 		self.path=environ['PATH_INFO']
-		self.cmd=self.init()
+		self.cmd,self.arg=self.init()
 		if self.method=='GET': return self.do_GET()
+		if self.method=='PUT': return self.do_PUT()
 		if self.method=='POST': return self.do_POST()
+		if self.method=='DELETE': return self.do_DELETE()
 		return self.bad_request()
 
 def application(environ,start_response):
