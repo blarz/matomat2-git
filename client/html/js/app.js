@@ -23,6 +23,10 @@ matomatApp.config(['$routeProvider','$sceProvider',
         templateUrl: 'partials/details.html',
         controller: 'detailCtrl'
       }).
+      when('/items', {
+        templateUrl: 'partials/items.html',
+        controller: 'itemsCtrl'
+      }).
       otherwise({
         redirectTo: '/login'
       });

@@ -1,0 +1,14 @@
+<table border="1">
+	<tr><th>Name</th><th>Preis/cent</th><th></th></tr>
+	<tr ng-repeat="item in items">
+		<td><input ng-model="item.name" /></td>
+		<td><input ng-model="item.price" /></td>
+		<td><a ng-click="save(item.id)">Speichern</a></td>
+		<td><a ng-click="delete(item.id)">Löschen</a></td>
+	</tr>
+	<tr>
+		<td><input ng-model="new_item.name" /></td>
+		<td><input ng-model="new_item.price" /></td>
+		<td><a ng-click="create()">Neu</a></td>
+	</tr>
+</table>  

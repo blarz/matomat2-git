@@ -28,6 +28,57 @@ matomatControllers.controller('detailCtrl', ['$scope', '$http', 'authenticator',
 			$scope.loadDetails();
 }]);
 
+matomatControllers.controller('itemsCtrl', ['$scope', '$http', 'authenticator','$log',
+		function($scope,$http, authenticator,$log) {
+			authenticator.login_if_invalid();
+			$scope.user=authenticator.user;
+			$scope.pass=authenticator.pass;
+			$scope.delete=function(id){
+				var url="api/"+$scope.user+"/items/"+id;
+				$http.delete(url,{headers:{pass:$scope.pass}})
+				.success(function(data){
+					$scope.loadItems();
+				});
+			}
+			$scope.create=function(){
+				var url="api/"+$scope.user+"/items";
+				var data=$scope.new_item;
+				$http.post(url,data,{headers:{pass:$scope.pass}})
+				.success(function(data){
+					$scope.loadItems();
+				})
+				.error(function(data){
+					$scope.loadItems();
+				});
+			}
+			$scope.save=function(id){
+				var url="api/"+$scope.user+"/items/"+id;
+				var data={};
+				for (var i in $scope.items){
+					var v=$scope.items[i];
+					if (v.id==id){
+						data={"name":v.name,"price":v.price};
+					}
+				}
+					$log.log(data);
+				$http.put(url,data,{headers:{pass:$scope.pass}})
+				.success(function(data){
+					$scope.loadItems();
+				})
+				.error(function(data){
+					$scope.loadItems();
+				});
+			}
+			$scope.loadItems=function(){
+				$http.get("api/items")
+					.success(function(data){
+						$scope.items=data;
+					});
+				$scope.new_item={"name":"","price":""};
+			}
+			$scope.loadItems();
+}]);
+
 matomatControllers.controller('userCtrl', ['$scope', '$http', 'authenticator',
 		function($scope,$http, authenticator) {
 			authenticator.login_if_invalid();
