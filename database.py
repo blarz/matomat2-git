@@ -43,8 +43,8 @@ class Transfer(Base):
 	recipient_id=Column(Integer,ForeignKey('users.id'))
 	amount=Column(Integer)
 	time=Column(DateTime, default=func.now())
-	sender=relationship('User', foreign_keys=sender_id)
-	recipient=relationship('User',foreign_keys=recipient_id)
+	sender=relationship('User', primaryjoin=(sender_id==User.id), foreign_keys=sender_id)
+	recipient=relationship('User', primaryjoin=(recipient_id==User.id), foreign_keys=recipient_id)
 
 def create_sessionmaker(dbengine):
 	__engine=create_engine(dbengine)
